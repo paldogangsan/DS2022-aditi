@@ -1,41 +1,123 @@
 #include <stdio.h>
 
-// function to swap the the position of two elements
-void swap(int *a, int *b) {
-  int temp = *a;
-  *a = *b;
-  *b = temp;
+struct Node {
+    int data;
+    struct Node* next;
+};
+ 
+
+void swap(struct Node** head_ref, struct Node* currX,
+               struct Node* currY, struct Node* prevY)
+{
+    // make 'currY' as new head
+    *head_ref = currY;
+ 
+    // adjust links
+    prevY->next = currX;
+ 
+    // Swap next pointers
+    struct Node* temp = currY->next;
+    currY->next = currX->next;
+    currX->next = temp;
 }
-
-void selectionSort(int array[], int size) {
-  for (int step = 0; step < size - 1; step++) {
-    int min_idx = step;
-    for (int i = step + 1; i < size; i++) {
-
-      // To sort in descending order, change > to < in this line.
-      // Select the minimum element in each loop.
-      if (array[i] < array[min_idx])
-        min_idx = i;
+ 
+// function to sort the linked list using
+// recursive selection sort technique
+struct Node* recurSelectionSort(struct Node* head)
+{
+    // if there is only a single node
+    if (head->next == NULL)
+        return head;
+ 
+    // 'min' - pointer to store the node having
+    // minimum data value
+    struct Node* min = head;
+ 
+    // 'beforeMin' - pointer to store node previous
+    // to 'min' node
+    struct Node* beforeMin = NULL;
+    struct Node* ptr;
+ 
+    // traverse the list till the last node
+    for (ptr = head; ptr->next != NULL; ptr = ptr->next) {
+ 
+        // if true, then update 'min' and 'beforeMin'
+        if (ptr->next->data < min->data) {
+            min = ptr->next;
+            beforeMin = ptr;
+        }
     }
-
-    // put min at the correct position
-    swap(&array[min_idx], &array[step]);
-  }
+ 
+    // if 'min' and 'head' are not same,
+    // swap the head node with the 'min' node
+    if (min != head)
+        swap(&head, head, min, beforeMin);
+ 
+    // recursively sort the remaining list
+    head->next = recurSelectionSort(head->next);
+ 
+    return head;
 }
-
-// function to print an array
-void printArray(int array[], int size) {
-  for (int i = 0; i < size; ++i) {
-    printf("%d  ", array[i]);
-  }
-  printf("\n");
+ 
+// function to sort the given linked list
+void sort(struct Node** head_ref)
+{
+    // if list is empty
+    if ((*head_ref) == NULL)
+        return;
+ 
+    // sort the list using recursive selection
+    // sort technique
+    *head_ref = recurSelectionSort(*head_ref);
 }
-
-// driver code
-int main() {
-  int data[] = {20, 12, 10, 15, 2};
-  int size = sizeof(data) / sizeof(data[0]);
-  selectionSort(data, size);
-  printf("Sorted array in Acsending Order:\n");
-  printArray(data, size);
+ 
+// function to insert a node at the
+// beginning of the linked list
+void push(struct Node** head_ref, int new_data)
+{
+    // allocate node
+    struct Node* new_node =
+         (struct Node*)malloc(sizeof(struct Node));
+ 
+    // put in the data
+    new_node->data = new_data;
+ 
+    // link the old list to the new node
+    new_node->next = (*head_ref);
+ 
+    // move the head to point to the new node
+    (*head_ref) = new_node;
+}
+ 
+// function to print the linked list
+void printList(struct Node* head)
+{
+    while (head != NULL) {
+        cout << head->data << " ";
+        head = head->next;
+    }
+}
+ 
+// Driver program to test above
+int main()
+{
+    struct Node* head = NULL;
+ 
+    // create linked list 10->12->8->4->6
+    push(&head, 6);
+    push(&head, 4);
+    push(&head, 8);
+    push(&head, 12);
+    push(&head, 10);
+ 
+    cout << "Linked list before sorting:n";
+    printList(head);
+ 
+    // sort the linked list
+    sort(&head);
+ 
+    cout << "\nLinked list after sorting:n";
+    printList(head);
+ 
+    return 0;
 }
